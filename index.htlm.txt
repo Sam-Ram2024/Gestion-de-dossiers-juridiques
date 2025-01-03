@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Affaires Juridiques</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .form-container, .list-container {
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-width: 600px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input, textarea, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .dossier {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .dossier:last-child {
+            border-bottom: none;
+        }
+        .actions button {
+            width: auto;
+            padding: 5px 10px;
+            margin: 0 5px;
+            background: #007BFF;
+            color: white;
+        }
+        .actions button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gestion des Affaires Juridiques</h1>
+
+    <div class="form-container">
+        <h2>Ajouter une Affaire</h2>
+        <form id="dossierForm">
+            <label for="nom">Nom de l'affaire :</label>
+            <input type="text" id="nom" required>
+
+            <label for="statut">Statut :</label>
+            <select id="statut">
+                <option value="En cours">En cours</option>
+                <option value="Archivé">Archivé</option>
+            </select>
+
+            <label for="remarques">Remarques :</label>
+            <textarea id="remarques"></textarea>
+
+            <button type="submit">Ajouter</button>
+        </form>
+    </div>
+
+    <div class="list-container">
+        <h2>Liste des Affaires</h2>
+        <div id="dossierList"></div>
+    </div>
+
+    <script>
+        const dossierForm = document.getElementById('dossierForm');
+        const dossierList = document.getElementById('dossierList');
+        let dossiers = JSON.parse(localStorage.getItem('dossiers')) || [];
+
+        dossierForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const nom = document.getElementById('nom').value;
+            const statut = document.getElementById('statut').value;
+            const remarques = document.getElementById('remarques').value;
+
+            const dossier = { nom, statut, remarques };
+            dossiers.push(dossier);
+            saveDossiers();
+            displayDossiers();
+
+            dossierForm.reset();
+        });
+
+        function displayDossiers() {
+            dossierList.innerHTML = '';
+            dossiers.forEach((dossier, index) => {
+                const dossierDiv = document.createElement('div');
+                dossierDiv.className = 'dossier';
+                dossierDiv.innerHTML = `
+                    <strong>${dossier.nom}</strong> - ${dossier.statut}<br>
+                    <em>${dossier.remarques}</em>
+                    <div class="actions">
+                        <button onclick="editDossier(${index})">Modifier</button>
+                        <button onclick="deleteDossier(${index})">Supprimer</button>
+                    </div>
+                `;
+                dossierList.appendChild(dossierDiv);
+            });
+        }
+
+        function saveDossiers() {
+            localStorage.setItem('dossiers', JSON.stringify(dossiers));
+        }
+
+        function editDossier(index) {
+            const dossier = dossiers[index];
+            document.getElementById('nom').value = dossier.nom;
+            document.getElementById('statut').value = dossier.statut;
+            document.getElementById('remarques').value = dossier.remarques;
+
+            deleteDossier(index);
+        }
+
+        function deleteDossier(index) {
+            dossiers.splice(index, 1);
+            saveDossiers();
+            displayDossiers();
+        }
+
+        // Display dossiers on page load
+        displayDossiers();
+    </script>
+</body>
+</html>
